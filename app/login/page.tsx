@@ -3,6 +3,7 @@ import React, { useState, useCallback } from "react";
 import InputField from "../component/InputField";
 import Button from "../component/Button";
 import SocialLoginButton from "../component/SocialLoginButton";
+import Link from "next/link";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -80,9 +81,11 @@ const LoginPage = () => {
           <SocialLoginButton provider="kakao" />
         </div>
         <p className="mt-5 max-w-full text-sm w-[400px]">계정이 없으신가요?</p>
-        <Button variant="secondary" className="mt-5 w-[400px]">
-          회원가입
-        </Button>
+        <Link href={"/signup"}>
+          <Button variant="secondary" className="mt-5 w-[400px]">
+            회원가입
+          </Button>
+        </Link>
       </div>
     </main>
   );
