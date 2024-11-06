@@ -1,3 +1,12 @@
+import Link from "next/link";
+import "./globals.css";
+
 export default function Home() {
-  return <div className="">홈</div>;
+  return (
+    <main>
+      쇼핑몰 홈
+      <br />
+      <Link href={"/login"}>로그인으로 이동</Link>
+    </main>
+  );
 }
