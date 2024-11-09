@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useCallback } from "react";
-import InputField from "../component/InputField";
-import Button from "../component/Button";
-import SocialLoginButton from "../component/SocialLoginButton";
+import InputField from "../component/common/InputField";
+import Button from "../component/common/Button";
+import SocialLoginButton from "../component/common/SocialLoginButton";
 import Link from "next/link";
 
 const LoginPage = () => {
@@ -37,7 +37,7 @@ const LoginPage = () => {
   }, [username, password, keepLoggedIn]);
 
   return (
-    <main className="flex overflow-hidden flex-col justify-center items-center px-2.5 py-20 w-full leading-snug text-black font-normal min-h-[721px] text-base max-md:max-w-full">
+    <main className="flex overflow-hidden flex-col justify-center items-center px-2.5 py-20 w-full leading-snug text-black font-normal text-base max-md:max-w-full">
       <h1 className="tracking-tight leading-tight text-center font-bold text-2xl">
         로그인
       </h1>
@@ -46,12 +46,14 @@ const LoginPage = () => {
           label="아이디"
           value={username}
           onChange={handleUsernameChange}
+          name={""}
         />
         <InputField
           label="비밀번호"
           type="password"
           value={password}
           onChange={handlePasswordChange}
+          name={""}
         />
         <div className="flex overflow-hidden gap-10 justify-between items-center mt-8 w-full max-w-[400px] text-sm">
           <label className="self-stretch">

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useCallback } from "react";
-import InputField from "../component/InputField";
-import Button from "../component/Button";
+import InputField from "../component/common/InputField";
+import Button from "../component/common/Button";
 import Link from "next/link";
 
 interface FormData {
