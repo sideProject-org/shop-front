@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ notificationMessage }) => {
   const icons = [CartIcon, HeartIcon, ProfileIcon];
 
   return (
-    <header className="flex flex-col sticky top-0">
+    <header className="flex flex-col sticky top-0 z-50 bg-white">
       <div className="flex flex-wrap justify-between items-center px-24 py-3 w-full min- max-md:px-5 max-md:max-w-full ">
         <Logo />
         <nav className="flex flex-1 gap-2 items-center justify-end self-stretch my-auto basis-0 max-md:max-w-full">
