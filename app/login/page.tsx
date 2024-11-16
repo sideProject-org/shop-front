@@ -1,18 +1,22 @@
 "use client";
 import React, { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import InputField from "../component/common/InputField";
 import Button from "../component/common/Button";
 import SocialLoginButton from "../component/common/SocialLoginButton";
 import Link from "next/link";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
+  const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleUsernameChange = useCallback(
+  const handleEmailChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setUsername(e.target.value);
+      setemail(e.target.value);
     },
     []
   );
@@ -31,10 +35,41 @@ const LoginPage = () => {
     []
   );
 
-  const handleLoginClick = useCallback(() => {
-    // TODO:: 로그인 연결
-    console.log({ username, password, keepLoggedIn });
-  }, [username, password, keepLoggedIn]);
+  const handleLoginClick = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/auth/sign-in`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          keepLoggedIn,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "로그인 실패");
+      }
+
+      const data = await response.json();
+
+      document.cookie = `access_token=${data.data.accessToken}; path=/; HttpOnly; Secure; SameSite=Strict`;
+      document.cookie = `refresh_token=${data.data.refreshToken}; path=/; HttpOnly; Secure; SameSite=Strict`;
+      alert("로그인 성공!");
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [email, password, keepLoggedIn, router]);
 
   return (
     <main className="flex overflow-hidden flex-col justify-center items-center px-2.5 py-20 w-full leading-snug text-black font-normal text-base max-md:max-w-full">
@@ -43,17 +78,17 @@ const LoginPage = () => {
       </h1>
       <div className="flex flex-col justify-center items-center mt-5 max-w-full">
         <InputField
-          label="아이디"
-          value={username}
-          onChange={handleUsernameChange}
-          name={""}
+          label="이메일"
+          value={email}
+          onChange={handleEmailChange}
+          name="email"
         />
         <InputField
           label="비밀번호"
           type="password"
           value={password}
           onChange={handlePasswordChange}
-          name={""}
+          name="password"
         />
         <div className="flex overflow-hidden gap-10 justify-between items-center mt-8 w-full max-w-[400px] text-sm">
           <label className="self-stretch">
@@ -76,9 +111,14 @@ const LoginPage = () => {
           </div>
         </div>
         <div className="flex flex-col mt-5 max-w-full font-bold text-slate-950 w-[400px]">
-          <Button onClick={handleLoginClick} variant="primary">
-            로그인
+          <Button
+            onClick={handleLoginClick}
+            variant="primary"
+            disabled={loading}
+          >
+            {loading ? "로그인 중..." : "로그인"}
           </Button>
+          {error && <p className="mt-2 text-red-500 font-normal">{error}</p>}
           <SocialLoginButton provider="google" />
           <SocialLoginButton provider="kakao" />
         </div>
