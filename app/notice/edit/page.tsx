@@ -1,15 +1,46 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CameraIcon from "@/assets/icons/camera.svg";
 import CloseIcon from "@/assets/icons/close.svg";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const NoticeForm: React.FC = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [images, setImages] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const currentUserEmail = localStorage.getItem("email");
+  const searchParams = useSearchParams();
+  const noticeId = searchParams.get("id"); // Get the notice ID from query params
+
+  useEffect(() => {
+    if (noticeId) {
+      // If we're editing an existing notice, fetch its details
+      const fetchNoticeDetail = async () => {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+          const response = await fetch(`${apiUrl}/global/notices/${noticeId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (!response.ok) {
+            throw new Error("공지사항을 불러오는 데 실패했습니다.");
+          }
+
+          const responseData = await response.json();
+          const { title, content, images } = responseData.data;
+          setTitle(title);
+          setContent(content);
+          setImages(images || []); // Set images if any exist
+        } catch (error) {
+          console.error("공지사항 불러오기 실패:", error);
+        }
+      };
+
+      fetchNoticeDetail();
+    }
+  }, [noticeId]);
 
   // 이미지 업로드 처리
   const handleImageUpload = async (
@@ -37,10 +68,7 @@ const NoticeForm: React.FC = () => {
       }
 
       const responseData = await response.json();
-
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const imageUrl = `${responseData.data.savedPath}`;
-
       setImages((prev) => [...prev, imageUrl]);
     } catch (err) {
       console.error("이미지 업로드 중 오류 발생:", err);
@@ -91,23 +119,33 @@ const NoticeForm: React.FC = () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      const response = await fetch(`${apiUrl}/admin/notices`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(noticeData),
-      });
+      const response = await fetch(
+        noticeId
+          ? `${apiUrl}/admin/notices/${noticeId}`
+          : `${apiUrl}/admin/notices`,
+        {
+          method: noticeId ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(noticeData),
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response:", errorText);
-        throw new Error("공지사항 등록 실패");
+        throw new Error(noticeId ? "공지사항 수정 실패" : "공지사항 등록 실패");
       }
 
       const responseData = await response.json();
-      alert("공지사항이 성공적으로 등록되었습니다.");
+      console.log(responseData);
+      alert(
+        noticeId
+          ? "공지사항이 성공적으로 수정되었습니다."
+          : "공지사항이 성공적으로 등록되었습니다."
+      );
     } catch (err) {
       console.error("공지사항 등록 중 오류 발생:", err);
       alert("공지사항 등록 중 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -120,7 +158,7 @@ const NoticeForm: React.FC = () => {
       className="flex overflow-hidden flex-col w-full px-44"
     >
       <h2 className="px-4 py-6 tracking-tight leading-tight text-neutral-900 font-bold text-2xl">
-        공지사항 등록
+        {noticeId ? "공지사항 수정" : "공지사항 등록"}
       </h2>
 
       {/* 제목 입력 */}
@@ -193,7 +231,7 @@ const NoticeForm: React.FC = () => {
           type="submit"
           className="px-6 py-3 text-white rounded-xl bg-zinc-900"
         >
-          등록
+          {noticeId ? "수정" : "등록"}
         </button>
       </div>
     </form>

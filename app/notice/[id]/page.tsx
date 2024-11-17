@@ -47,8 +47,8 @@ const NotificationDetail = () => {
     }
   };
 
-  const handleEdit = async () => {
-    alert("수정 기능은 여기에 추가하세요.");
+  const handleEdit = () => {
+    router.push(`/notice/edit?id=${id}`);
   };
 
   const handleDelete = async () => {

@@ -45,7 +45,7 @@ const ProfilePage = () => {
       </h1>
       <div onClick={logout}>로그아웃</div>
       {currentUserEmail === "administrator" && (
-        <Link href={"/notice/create"}>공지사항 등록</Link>
+        <Link href={"/notice/edit"}>공지사항 등록</Link>
       )}
     </main>
   );
