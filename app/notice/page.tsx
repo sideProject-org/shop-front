@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import NoticeItem from "@/component/notice/NoticeItem";
+import NoticeItem from "./NoticeItem";
 
 interface Member {
   id: number;
@@ -53,7 +53,7 @@ const NoticeBoard: React.FC = () => {
       }
 
       const responseData = await response.json();
-      console.log(responseData.data.totalElements);
+      console.log(responseData.data);
       if (responseData.data.content.length === 0) {
         setError("공지사항이 없습니다.");
       } else {
@@ -83,7 +83,7 @@ const NoticeBoard: React.FC = () => {
   return (
     <section className="flex flex-col w-full px-44">
       <div className="flex overflow-hidden flex-col items-center pt-12 w-full">
-        <div className="flex flex-wrap gap-3 justify-between items-start w-full tracking-tight leading-tight whitespace-nowrap text-neutral-900 pb-4">
+        <div className="flex flex-wrap gap-3 justify-between items-start w-full tracking-tight leading-tight whitespace-nowrap text-neutral-900 pb-7">
           <h2 className="tracking-tight leading-tight text-neutral-900 font-bold text-2xl">
             공지사항
           </h2>
@@ -102,6 +102,7 @@ const NoticeBoard: React.FC = () => {
                 // date={notice.member.nickName}
                 views={notice.viewCnt}
                 comments={0}
+                id={notice.id}
               />
               {index < notices.length - 1 && (
                 <div className="my-4 w-full min-h-0 border border-black border-solid" />
