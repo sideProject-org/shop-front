@@ -1,16 +1,15 @@
-import React from "react";
 import CommentIcon from "@/assets/icons/comment.svg";
 import ViewIcon from "@/assets/icons/view.svg";
 
 interface NoticeItemProps {
-  content: string;
+  title: string;
   date: string;
   views: number;
   comments: number;
 }
 
 const NoticeItem: React.FC<NoticeItemProps> = ({
-  content,
+  title,
   date,
   views,
   comments,
@@ -18,8 +17,8 @@ const NoticeItem: React.FC<NoticeItemProps> = ({
   return (
     <article className="flex flex-col py-5 pl-4 w-full">
       <div className="flex flex-wrap gap-10 justify-between items-start w-full">
-        <h3 className="overflow-hidden leading-snug text-ellipsis text-neutral-900">
-          {content}
+        <h3 className="overflow-hidden leading-snug text-ellipsis text-neutral-900 font-bold text-lg">
+          {title}
         </h3>
         <time className="text-sm text-center whitespace-nowrap text-neutral-500">
           {date}
