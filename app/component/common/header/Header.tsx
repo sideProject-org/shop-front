@@ -14,13 +14,17 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ notificationMessage }) => {
   const navItems = [
     { text: "공지사항", href: "/notice" },
-    { text: "공지사항 만들기(임시)", href: "/notice/create" },
     { text: "전체", href: "/all" },
     { text: "카테고리 1", href: "/category/1" },
     { text: "카테고리 2", href: "/category/2" },
     { text: "카테고리 3", href: "/category/3" },
   ];
-  const icons = [CartIcon, HeartIcon, ProfileIcon];
+
+  const icons = [
+    { icon: CartIcon, href: "/cart" },
+    { icon: HeartIcon, href: "/wishlist" },
+    { icon: ProfileIcon, href: "/profile" },
+  ];
 
   return (
     <header className="flex flex-col sticky top-0 z-50 bg-white">
@@ -28,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ notificationMessage }) => {
         <Logo />
         <nav className="flex flex-1 gap-2 items-center justify-end self-stretch my-auto basis-0 max-md:max-w-full">
           {icons.map((icon, index) => (
-            <IconButton key={index} iconSrc={icon} />
+            <IconButton key={index} iconSrc={icon.icon} href={icon.href} />
           ))}
         </nav>
       </div>

@@ -1,19 +1,19 @@
 "use client";
-import { useSearchParams } from "next/navigation";
+
 import CommentSection from "./CommentSection";
 import NotificationContent from "./NotificationContent";
 import NotificationHeader from "./NotificationHeader";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 const NotificationDetail = () => {
-  const params = useSearchParams();
-
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const pathname = usePathname();
   const id = pathname.split("/").pop();
+  const router = useRouter();
 
   const [notification, setNotification] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const increaseViewCount = async () => {
     try {
@@ -24,9 +24,7 @@ const NotificationDetail = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      if (!response.ok) {
-        throw new Error("조회수 증가에 실패했습니다.");
-      }
+      if (!response.ok) throw new Error("조회수 증가에 실패했습니다.");
       console.log("조회수 증가 성공");
     } catch (error) {
       console.error("조회수 증가 실패:", error);
@@ -37,18 +35,36 @@ const NotificationDetail = () => {
     try {
       const response = await fetch(`${apiUrl}/global/notices/${id}`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
-      if (!response.ok) {
-        throw new Error("공지사항을 불러오는 데 실패했습니다.");
-      }
+      if (!response.ok) throw new Error("공지사항을 불러오는 데 실패했습니다.");
       const responseData = await response.json();
-      console.log("responseData.data", responseData.data);
       setNotification(responseData.data);
     } catch (error) {
       console.error("공지사항 불러오기 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = async () => {
+    alert("수정 기능은 여기에 추가하세요.");
+  };
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/admin/notices/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      if (!response.ok) throw new Error("공지사항 삭제에 실패했습니다.");
+      alert("공지사항이 삭제되었습니다.");
+      router.push("/");
+    } catch (error) {
+      console.error("공지사항 삭제 실패:", error);
+      alert("공지사항 삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -57,8 +73,12 @@ const NotificationDetail = () => {
     increaseViewCount();
   }, []);
 
-  if (!notification) {
+  if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (!notification) {
+    return <div>공지사항 데이터를 불러올 수 없습니다.</div>;
   }
 
   const { title, content, viewCnt, member } = notification;
@@ -66,7 +86,12 @@ const NotificationDetail = () => {
   return (
     <article className="flex flex-col bg-white">
       <div className="flex overflow-hidden flex-col px-40 w-full max-md:px-5 max-md:max-w-full pt-8">
-        <NotificationHeader title={title} />
+        <NotificationHeader
+          title={title}
+          noticeId={id}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
         <div className="flex flex-wrap gap-5 items-center px-4 w-full text-sm whitespace-nowrap text-neutral-500 max-md:max-w-full">
           <div className="flex gap-1.5 items-center self-stretch my-auto">
             <span className="self-stretch my-auto">조회수 {viewCnt}</span>

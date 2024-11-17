@@ -2,12 +2,14 @@
 import React, { useState } from "react";
 import CameraIcon from "@/assets/icons/camera.svg";
 import CloseIcon from "@/assets/icons/close.svg";
+import Link from "next/link";
 
 const NoticeForm: React.FC = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [images, setImages] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const currentUserEmail = localStorage.getItem("email");
 
   // 이미지 업로드 처리
   const handleImageUpload = async (
@@ -181,12 +183,12 @@ const NoticeForm: React.FC = () => {
 
       {/* 버튼들 */}
       <div className="flex justify-end gap-3 items-center px-4 py-3 w-full">
-        <button
-          type="button"
+        <Link
+          href={"/notice"}
           className="px-6 py-3 rounded-xl bg-zinc-100 text-neutral-900"
         >
           취소
-        </button>
+        </Link>
         <button
           type="submit"
           className="px-6 py-3 text-white rounded-xl bg-zinc-900"

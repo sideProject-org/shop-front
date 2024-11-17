@@ -8,6 +8,8 @@ interface CommentSectionProps {
 const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState<string>("");
+  const currentUserEmail = localStorage.getItem("email");
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchComments = async () => {
@@ -37,7 +39,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
       setComments(data.data); // 댓글 데이터를 상태에 저장
       console.log(data.data);
     } catch (error) {
-      console.error("댓글 목록 불러오기 실패:", error);
+      console.log("댓글 목록 불러오기 실패:", error);
       // setComments([]);
       // alert("댓글 목록을 불러오는 데 실패했습니다. 다시 시도해주세요.");
     }
@@ -94,7 +96,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
       </h2>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-wrap gap-2.5 items-center px-4 leading-snug max-w-[960px] text-[length:var(--sds-typography-body-size-medium)]"
+        className="flex flex-wrap gap-2.5 items-center px-4 leading-snug"
       >
         <input
           type="text"
@@ -116,11 +118,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
         <p className="p-4 text-gray-500">댓글이 없습니다.</p>
       ) : (
         comments.map((comment, idx) => (
-          <CommentItem
-            key={idx}
-            author={comment.member.nickName}
-            content={comment.comment}
-          />
+          <React.Fragment key={idx}>
+            <CommentItem
+              author={comment.member?.nickName}
+              content={comment.comment}
+            />
+            {currentUserEmail === comment.member.email && <button>수정</button>}
+          </React.Fragment>
         ))
       )}
     </section>

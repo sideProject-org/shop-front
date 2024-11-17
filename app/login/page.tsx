@@ -67,7 +67,7 @@ const LoginPage = () => {
       }
 
       const data = await response.json();
-      console.log("data:", data.data.accessToken);
+      console.log("data:", data.data);
 
       localStorage.setItem("accessToken", data.data.accessToken);
 
@@ -76,6 +76,8 @@ const LoginPage = () => {
         secure: true,
         sameSite: "Strict",
       });
+
+      localStorage.setItem("email", email);
 
       alert("로그인 성공!");
       router.push("/");
