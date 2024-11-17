@@ -1,22 +1,31 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import InputField from "../component/common/InputField";
 import Button from "../component/common/Button";
 import SocialLoginButton from "../component/common/SocialLoginButton";
 import Link from "next/link";
+import Cookie from "js-cookie";
 
 const LoginPage = () => {
-  const [email, setemail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      console.log("이미 로그인된 사용자입니다.");
+      router.push("/");
+    }
+  }, [router]);
+
   const handleEmailChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setemail(e.target.value);
+      setEmail(e.target.value);
     },
     []
   );
@@ -49,7 +58,6 @@ const LoginPage = () => {
         body: JSON.stringify({
           email,
           password,
-          keepLoggedIn,
         }),
       });
 
@@ -59,9 +67,16 @@ const LoginPage = () => {
       }
 
       const data = await response.json();
+      console.log("data:", data.data.accessToken);
 
-      document.cookie = `access_token=${data.data.accessToken}; path=/; HttpOnly; Secure; SameSite=Strict`;
-      document.cookie = `refresh_token=${data.data.refreshToken}; path=/; HttpOnly; Secure; SameSite=Strict`;
+      localStorage.setItem("accessToken", data.data.accessToken);
+
+      Cookie.set("refreshToken", data.data.refreshToken, {
+        expires: 7,
+        secure: true,
+        sameSite: "Strict",
+      });
+
       alert("로그인 성공!");
       router.push("/");
     } catch (err: any) {
@@ -69,7 +84,37 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [email, password, keepLoggedIn, router]);
+  }, [email, password, router]);
+
+  const fetchWithAccessToken = useCallback(
+    async (url: string, options: RequestInit = {}) => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        setError("Access token이 없습니다. 다시 로그인해주세요.");
+        return null;
+      }
+
+      try {
+        const response = await fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("API 요청 실패");
+        }
+
+        return await response.json();
+      } catch (err: any) {
+        setError(err.message);
+        return null;
+      }
+    },
+    []
+  );
 
   return (
     <main className="flex overflow-hidden flex-col justify-center items-center px-2.5 py-20 w-full leading-snug text-black font-normal text-base max-md:max-w-full">
@@ -90,8 +135,9 @@ const LoginPage = () => {
           onChange={handlePasswordChange}
           name="password"
         />
+
         <div className="flex overflow-hidden gap-10 justify-between items-center mt-8 w-full max-w-[400px] text-sm">
-          <label className="self-stretch">
+          {/* <label className="self-stretch">
             <input
               type="checkbox"
               checked={keepLoggedIn}
@@ -99,7 +145,7 @@ const LoginPage = () => {
               className="mr-2"
             />
             로그인 유지하기
-          </label>
+          </label> */}
           <div className="flex gap-2.5 items-center self-stretch my-auto">
             <a href="#" className="self-stretch my-auto">
               아이디 찾기
@@ -110,6 +156,7 @@ const LoginPage = () => {
             </a>
           </div>
         </div>
+
         <div className="flex flex-col mt-5 max-w-full font-bold text-slate-950 w-[400px]">
           <Button
             onClick={handleLoginClick}
