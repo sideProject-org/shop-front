@@ -18,8 +18,8 @@ const LoginPage = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
-      console.log("이미 로그인된 사용자입니다.");
-      router.push("/");
+      alert("이미 로그인된 사용자입니다.");
+      // router.push("/");
     }
   }, [router]);
 

@@ -17,16 +17,13 @@ const NotificationDetail = () => {
 
   const increaseViewCount = async () => {
     try {
-      const response = await fetch(
-        `${apiUrl}/api/global/notices/${id}/view-cnt`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const response = await fetch(`${apiUrl}/global/notices/${id}/view-cnt`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("조회수 증가에 실패했습니다.");
       }
@@ -76,7 +73,7 @@ const NotificationDetail = () => {
           </div>
         </div>
         <NotificationContent content={content} />
-        <CommentSection />
+        <CommentSection id={id} />
       </div>
     </article>
   );
