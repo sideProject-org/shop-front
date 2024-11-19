@@ -6,8 +6,10 @@ import Button from "../component/common/Button";
 import SocialLoginButton from "../component/common/SocialLoginButton";
 import Link from "next/link";
 import Cookie from "js-cookie";
+import { useApiClient } from "@/context/useApiClient";
 
 const LoginPage = () => {
+  const { requestWithToken } = useApiClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
@@ -49,17 +51,30 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/auth/sign-in`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const response = await requestWithToken(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/sign-in`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      // const response = await fetch(`${apiUrl}/auth/sign-in`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     email,
+      //     password,
+      //   }),
+      // });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -87,36 +102,6 @@ const LoginPage = () => {
       setLoading(false);
     }
   }, [email, password, router]);
-
-  const fetchWithAccessToken = useCallback(
-    async (url: string, options: RequestInit = {}) => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("Access token이 없습니다. 다시 로그인해주세요.");
-        return null;
-      }
-
-      try {
-        const response = await fetch(url, {
-          ...options,
-          headers: {
-            ...options.headers,
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("API 요청 실패");
-        }
-
-        return await response.json();
-      } catch (err: any) {
-        setError(err.message);
-        return null;
-      }
-    },
-    []
-  );
 
   return (
     <main className="flex overflow-hidden flex-col justify-center items-center px-2.5 py-20 w-full leading-snug text-black font-normal text-base max-md:max-w-full">
