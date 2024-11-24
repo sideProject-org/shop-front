@@ -4,9 +4,12 @@ import CameraIcon from "@/assets/icons/camera.svg";
 import CloseIcon from "@/assets/icons/close.svg";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import ReactQuillEditor from "../ReactQuillEditor";
+import { useApiClient } from "@/context/useApiClient";
 
 const NoticeForm: React.FC = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const { requestWithToken } = useApiClient();
   const [images, setImages] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -19,10 +22,13 @@ const NoticeForm: React.FC = () => {
       const fetchNoticeDetail = async () => {
         try {
           const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-          const response = await fetch(`${apiUrl}/global/notices/${noticeId}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          });
+          const response = await requestWithToken(
+            `${apiUrl}/global/notices/${noticeId}`,
+            {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
 
           if (!response.ok) {
             throw new Error("공지사항을 불러오는 데 실패했습니다.");
@@ -41,6 +47,10 @@ const NoticeForm: React.FC = () => {
       fetchNoticeDetail();
     }
   }, [noticeId]);
+
+  const handleEditorChange = (value: string) => {
+    setContent(value); // 상태 업데이트
+  };
 
   // 이미지 업로드 처리
   const handleImageUpload = async (
@@ -173,51 +183,12 @@ const NoticeForm: React.FC = () => {
         />
       </div>
 
-      {/* 내용 입력 */}
-      <div className="flex flex-wrap gap-4 items-end px-4 py-3 w-full text-base text-neutral-500">
-        <textarea
-          id="content"
-          className="outline-none overflow-y-auto px-4 pt-4 pb-4 w-full bg-white rounded-xl border border-solid border-neutral-200 max-h-[200px] min-h-[144px]"
-          placeholder="내용 입력하기"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-      </div>
-
-      {/* 이미지 업로드 */}
-      <div className="flex flex-wrap gap-5 items-start px-4 py-5 w-full">
-        {images.map((src, index) => (
-          <div key={index} className="relative">
-            <img
-              src={`${baseUrl}${src}`}
-              alt={`Notice image ${index + 1}`}
-              width={200}
-              height={200}
-              className="object-contain rounded-3xl aspect-square"
-            />
-            <button
-              type="button"
-              onClick={() => handleImageDelete(src)}
-              className="absolute top-0 right-0 rounded-full p-2 bg-gray-200 hover:bg-gray-300"
-            >
-              <CloseIcon width={24} height={24} />
-            </button>
-          </div>
-        ))}
-
-        <div className="flex overflow-hidden flex-col justify-center items-center px-10 bg-gray-200 rounded-3xl aspect-square w-[200px] max-md:px-5 cursor-pointer">
-          <label htmlFor="imageUpload" className="cursor-pointer">
-            <CameraIcon width={75} height={75} />
-          </label>
-          <input
-            id="imageUpload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-        </div>
-      </div>
+      <ReactQuillEditor
+        value={content}
+        onChange={handleEditorChange}
+        onImageDelete={handleImageDelete} // 이미지 삭제 핸들러 연결
+        style={{ width: "100%", height: "80%" }}
+      />
 
       {/* 버튼들 */}
       <div className="flex justify-end gap-3 items-center px-4 py-3 w-full">

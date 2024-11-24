@@ -1,5 +1,6 @@
 "use client";
 
+import { useApiClient } from "@/context/useApiClient";
 import CommentSection from "./CommentSection";
 import NotificationContent from "./NotificationContent";
 import NotificationHeader from "./NotificationHeader";
@@ -8,6 +9,7 @@ import { useState, useEffect } from "react";
 
 const NotificationDetail = () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const { requestWithToken } = useApiClient();
   const pathname = usePathname();
   const id = pathname.split("/").pop();
   const router = useRouter();
@@ -17,13 +19,16 @@ const NotificationDetail = () => {
 
   const increaseViewCount = async () => {
     try {
-      const response = await fetch(`${apiUrl}/global/notices/${id}/view-cnt`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await requestWithToken(
+        `${apiUrl}/global/notices/${id}/view-cnt`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
       if (!response.ok) throw new Error("조회수 증가에 실패했습니다.");
       console.log("조회수 증가 성공");
     } catch (error) {
@@ -33,10 +38,13 @@ const NotificationDetail = () => {
 
   const fetchNoticeDetail = async () => {
     try {
-      const response = await fetch(`${apiUrl}/global/notices/${id}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await requestWithToken(
+        `${apiUrl}/global/notices/${id}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       if (!response.ok) throw new Error("공지사항을 불러오는 데 실패했습니다.");
       const responseData = await response.json();
       setNotification(responseData.data);

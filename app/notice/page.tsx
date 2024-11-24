@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import NoticeItem from "./NoticeItem";
+import { useApiClient } from "@/context/useApiClient";
 
 interface Member {
   id: number;
@@ -23,6 +24,7 @@ interface Pageable {
 }
 
 const NoticeBoard: React.FC = () => {
+  const { requestWithToken } = useApiClient();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
@@ -41,12 +43,15 @@ const NoticeBoard: React.FC = () => {
     }).toString();
 
     try {
-      const response = await fetch(`${apiUrl}/global/notices?${queryParams}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await requestWithToken(
+        `${apiUrl}/global/notices?${queryParams}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("공지사항을 불러오는 데 실패했습니다.");

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import CommentItem from "./CommentItem";
+import { useApiClient } from "@/context/useApiClient";
 
 interface CommentSectionProps {
   id: string | undefined;
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
+  const { requestWithToken } = useApiClient();
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState<string>("");
   const currentUserEmail = localStorage.getItem("email");
@@ -20,7 +22,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
         return;
       }
 
-      const response = await fetch(
+      const response = await requestWithToken(
         `${apiUrl}/global/notices/${id}/notice_comments`,
         {
           method: "GET",
