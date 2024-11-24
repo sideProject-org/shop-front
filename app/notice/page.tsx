@@ -58,12 +58,12 @@ const NoticeBoard: React.FC = () => {
       }
 
       const responseData = await response.json();
-      console.log(responseData.data);
       if (responseData.data.content.length === 0) {
         setError("공지사항이 없습니다.");
       } else {
         setNotices(responseData.data.content);
         setTotalElements(responseData.data.totalElements);
+        console.log(responseData);
         setError(null);
       }
     } catch (error) {
@@ -87,13 +87,28 @@ const NoticeBoard: React.FC = () => {
 
   return (
     <section className="flex flex-col w-full px-44">
-      <div className="flex overflow-hidden flex-col items-center pt-12 w-full">
-        <div className="flex flex-wrap gap-3 justify-between items-start w-full tracking-tight leading-tight whitespace-nowrap text-neutral-900 pb-7">
-          <h2 className="tracking-tight leading-tight text-neutral-900 font-bold text-2xl">
+      <div className="flex flex-col pt-32">
+        <div className="flex flex-col gap-[20px] items-start">
+          <span className="text-[48px] font-bold leading-[57.6px] text-[#141414]">
             공지사항
-          </h2>
-        </div>
+          </span>
 
+          <span className="text-[16px] font-semibold leading-[22px] text-[#141414] text-lg">
+            더몰의 새소식을 안내해 드립니다.
+          </span>
+
+          <div className="flex pr-0  py-6 pl-0 gap-[30px] items-center text-[16px] leading-[22px] text-[#0c0c20] w-full text-lg font-bold border-t-[3px] border-b-2 border-black border-solid">
+            <div className="flex justify-center items-center shrink-0">
+              번호
+            </div>
+            <div className="flex justify-center items-center flex-grow ">
+              제목
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex overflow-hidden flex-col items-center w-full">
         {error ? (
           <div className="mt-4">{error}</div>
         ) : notices.length === 0 ? (
@@ -104,18 +119,17 @@ const NoticeBoard: React.FC = () => {
               <NoticeItem
                 title={notice.title}
                 date={""}
-                // date={notice.member.nickName}
                 views={notice.viewCnt}
                 comments={0}
-                id={notice.id}
+                id={pageable.page * pageable.size + (index + 1)}
               />
               {index < notices.length - 1 && (
-                <div className="my-4 w-full min-h-0 border border-black border-solid" />
+                <div className="w-full min-h-0 border-t-2 border-black" />
               )}
             </React.Fragment>
           ))
         )}
-        {/* 페이지네이션 */}
+
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex justify-center gap-6 mt-4 font-bold">
           <button
             onClick={() => handlePageChange(pageable.page - 1)}
