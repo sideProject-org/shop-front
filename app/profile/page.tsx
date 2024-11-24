@@ -1,9 +1,11 @@
 "use client";
 
+import { useApiClient } from "@/context/useApiClient";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
 const ProfilePage = () => {
+  const { requestWithToken } = useApiClient();
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -15,7 +17,7 @@ const ProfilePage = () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     try {
-      const response = await fetch(`${apiUrl}/members/logout`, {
+      const response = await requestWithToken(`${apiUrl}/members/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
