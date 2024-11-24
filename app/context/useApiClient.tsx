@@ -5,6 +5,8 @@ export const useApiClient = () => {
   const { accessToken, setTokens, logout } = useAuth();
 
   const requestWithToken = async (url: string, options: RequestInit = {}) => {
+    console.log(localStorage.getItem("accessToken"));
+
     const headers = {
       ...(options.headers || {}),
       Authorization: `Bearer ${accessToken}`,
@@ -13,10 +15,11 @@ export const useApiClient = () => {
 
     const response = await fetch(url, { ...options, headers });
 
+    /*
     if (response.status === 401) {
-      // Access token 만료 시 refresh token으로 갱신
+      // Access token 만료 시 refresh token으로 갱신reissue
       const refreshResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/reissue`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/`,
         {
           method: "POST",
           headers: {
@@ -45,6 +48,7 @@ export const useApiClient = () => {
         throw new Error("로그인이 만료되었습니다. 다시 로그인해주세요.");
       }
     }
+    */
 
     return response;
   };

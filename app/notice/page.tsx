@@ -121,7 +121,8 @@ const NoticeBoard: React.FC = () => {
                 date={""}
                 views={notice.viewCnt}
                 comments={0}
-                id={pageable.page * pageable.size + (index + 1)}
+                id={notice.id}
+                index={pageable.page * pageable.size + (index + 1)}
               />
               {index < notices.length - 1 && (
                 <div className="w-full min-h-0 border-t-2 border-black" />

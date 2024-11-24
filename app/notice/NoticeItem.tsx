@@ -4,6 +4,7 @@ import ViewIcon from "@/assets/icons/view.svg";
 
 interface NoticeItemProps {
   id: number;
+  index: number;
   title: string;
   date: string;
   views: number;
@@ -12,6 +13,7 @@ interface NoticeItemProps {
 
 const NoticeItem: React.FC<NoticeItemProps> = ({
   id,
+  index,
   title,
   date,
   views,
@@ -20,7 +22,7 @@ const NoticeItem: React.FC<NoticeItemProps> = ({
   return (
     <Link href={`/notice/${id}`} className="flex flex-col py-8 pl-4 w-full">
       <article className="flex w-full items-center">
-        <div className="text-2xl pr-8 font-bold">{id}</div>
+        <div className="text-2xl pr-8 font-bold">{index}</div>
         <div className="flex flex-col w-full">
           <div className="flex flex-wrap gap-10 justify-between items-start w-full">
             <h3 className="overflow-hidden leading-snug text-ellipsis text-neutral-900 font-bold text-lg">

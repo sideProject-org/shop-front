@@ -45,11 +45,12 @@ const NotificationDetail = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      if (!response.ok) throw new Error("공지사항을 불러오는 데 실패했습니다.");
+      // if (!response.ok) throw new Error("공지사항을 불러오는 데 실패했습니다.");
       const responseData = await response.json();
       setNotification(responseData.data);
     } catch (error) {
-      console.error("공지사항 불러오기 실패:", error);
+      console.log(error);
+      // console.error("공지사항 불러오기 실패:", error);
     } finally {
       setIsLoading(false);
     }
@@ -91,6 +92,7 @@ const NotificationDetail = () => {
 
   const { title, content, viewCnt, member } = notification;
 
+  console.log("notification", notification);
   return (
     <article className="flex flex-col bg-white">
       <div className="flex overflow-hidden flex-col px-40 w-full max-md:px-5 max-md:max-w-full pt-8">
@@ -99,12 +101,8 @@ const NotificationDetail = () => {
           noticeId={id}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          viewCnt={viewCnt}
         />
-        <div className="flex flex-wrap gap-5 items-center px-4 w-full text-sm whitespace-nowrap text-neutral-500 max-md:max-w-full">
-          <div className="flex gap-1.5 items-center self-stretch my-auto">
-            <span className="self-stretch my-auto">조회수 {viewCnt}</span>
-          </div>
-        </div>
         <NotificationContent content={content} />
         <CommentSection id={id} />
       </div>

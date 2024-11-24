@@ -92,24 +92,26 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
   };
 
   return (
-    <section>
-      <h2 className="px-4 pt-5 pb-3 w-full text-2xl font-bold leading-none whitespace-nowrap text-neutral-900 max-md:max-w-full">
+    <section className="pt-5 pb-3 px-4">
+      <span className="w-full text-2xl font-bold leading-none whitespace-nowrap text-neutral-900 max-md:max-w-full">
         댓글
-      </h2>
+      </span>
+      <span className="text-gray-500 font-semibold">{comments.length}</span>
+
       <form
         onSubmit={handleSubmit}
-        className="flex flex-wrap gap-2.5 items-center px-4 leading-snug"
+        className="flex flex-wrap gap-2.5 items-center leading-snug mt-5"
       >
         <input
           type="text"
-          className="outline-none overflow-hidden flex-1 shrink self-stretch px-4 py-2 my-auto bg-gray-200 rounded-2xl basis-6 max-md:max-w-full"
+          className="outline-none overflow-hidden flex-1 shrink self-stretch px-4 py-2 my-auto bg-white text-gray-500 rounded-2xl basis-6 max-md:max-w-full border-2 border-gray-300"
           placeholder="댓글 추가"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
         />
         <button
           type="submit"
-          className="overflow-hidden gap-2.5 self-stretch px-7 py-2 my-auto whitespace-nowrap rounded-xl bg-slate-950  text-slate-50 max-md:px-5"
+          className="overflow-hidden gap-2.5 self-stretch px-7 py-2 my-auto whitespace-nowrap rounded-xl bg-slate-950  text-slate-50 max-md:px-5 font-semibold"
         >
           보내기
         </button>
