@@ -10,26 +10,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
   const { requestWithToken } = useApiClient();
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState<string>("");
-  const currentUserEmail = localStorage.getItem("email");
+  const [editingComment, setEditingComment] = useState<{
+    commentId: number | null;
+    content: string;
+  }>({ commentId: null, content: "" });
 
+  const currentUserEmail = localStorage.getItem("email");
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchComments = async () => {
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("로그인 정보가 없습니다. 로그인 후 다시 시도해주세요.");
-        return;
-      }
-
       const response = await requestWithToken(
         `${apiUrl}/global/notices/${id}/notice_comments`,
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
         }
       );
 
@@ -38,12 +32,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
       }
 
       const data = await response.json();
-      setComments(data.data); // 댓글 데이터를 상태에 저장
-      console.log(data.data);
+      setComments(data.data);
     } catch (error) {
-      console.log("댓글 목록 불러오기 실패:", error);
-      // setComments([]);
-      // alert("댓글 목록을 불러오는 데 실패했습니다. 다시 시도해주세요.");
+      console.error("댓글 목록 불러오기 실패:", error);
     }
   };
 
@@ -51,43 +42,91 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
     fetchComments();
   }, [id]);
 
-  // 댓글 작성 함수
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      alert("로그인 정보가 없습니다. 로그인 후 다시 시도해주세요.");
-      return;
-    }
-
-    console.log("accessToken:", accessToken);
     try {
-      const response = await fetch(
+      const response = await requestWithToken(
         `${apiUrl}/members/common/notice-comment/${id}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
           body: JSON.stringify({ comment: newComment }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("댓글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        throw new Error("댓글 작성에 실패했습니다.");
       }
 
       const data = await response.json();
-      setComments((prevComments) => [
-        ...prevComments,
-        { id: data.id, author: "현재 사용자", content: newComment },
+      setComments((prev) => [
+        ...prev,
+        {
+          id: data.id,
+          member: { nickName: "현재 사용자", profileImg: "" },
+          comment: newComment,
+        },
       ]);
       setNewComment("");
     } catch (error) {
       console.error("댓글 작성 실패:", error);
-      alert("댓글 작성 중 문제가 발생했습니다. 다시 시도해주세요.");
+    }
+  };
+
+  const handleEditClick = (commentId: number, content: string) => {
+    setEditingComment({ commentId, content });
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditingComment((prev) => ({ ...prev, content: e.target.value }));
+  };
+
+  const handleEditSubmit = async (commentId: number) => {
+    try {
+      const response = await requestWithToken(
+        `${apiUrl}/members/common/notice-comment/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            commentId,
+            comment: editingComment.content,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("댓글 수정에 실패했습니다.");
+      }
+
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, comment: editingComment.content }
+            : comment
+        )
+      );
+      setEditingComment({ commentId: null, content: "" });
+    } catch (error) {
+      console.error("댓글 수정 실패:", error);
+    }
+  };
+
+  const handleDelete = async (commentId: number) => {
+    try {
+      const response = await requestWithToken(
+        `${apiUrl}/members/common/notice-comment/${id}`,
+        {
+          method: "DELETE",
+          body: JSON.stringify({ commentId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("댓글 삭제에 실패했습니다.");
+      }
+
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+    } catch (error) {
+      console.error("댓글 삭제 실패:", error);
     }
   };
 
@@ -100,7 +139,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-wrap gap-2.5 items-center leading-snug mt-5"
+        className="flex flex-wrap gap-2.5 items-center leading-snug my-5"
       >
         <input
           type="text"
@@ -111,23 +150,60 @@ const CommentSection: React.FC<CommentSectionProps> = ({ id }) => {
         />
         <button
           type="submit"
-          className="overflow-hidden gap-2.5 self-stretch px-7 py-2 my-auto whitespace-nowrap rounded-xl bg-slate-950  text-slate-50 max-md:px-5 font-semibold"
+          className="overflow-hidden gap-2.5 self-stretch px-7 py-2 my-auto whitespace-nowrap rounded-xl bg-black text-white max-md:px-5 font-semibold"
         >
           보내기
         </button>
       </form>
 
-      {/* 댓글 목록 출력 */}
       {comments.length === 0 ? (
         <p className="p-4 text-gray-500">댓글이 없습니다.</p>
       ) : (
-        comments.map((comment, idx) => (
-          <React.Fragment key={idx}>
-            <CommentItem
-              author={comment.member?.nickName}
-              content={comment.comment}
-            />
-            {currentUserEmail === comment.member.email && <button>수정</button>}
+        comments.map((comment) => (
+          <React.Fragment key={comment.id}>
+            <div className="flex items-center gap-3">
+              {editingComment.commentId === comment.id ? (
+                <div className="flex flex-1 items-center gap-2">
+                  <input
+                    type="text"
+                    value={editingComment.content}
+                    onChange={handleEditChange}
+                    className="outline-none flex-1 px-4 py-2 rounded-2xl border-2 border-gray-300"
+                  />
+                  <button
+                    onClick={() => handleEditSubmit(comment.id)}
+                    className="px-[36px] py-2 font-semibold bg-black text-white rounded-xl flex items-center justify-center"
+                  >
+                    완료
+                  </button>
+                </div>
+              ) : (
+                <div className="flex justify-between w-full mb-5 items-center">
+                  <CommentItem
+                    author={comment.member?.nickName}
+                    content={comment.comment}
+                  />
+                  {currentUserEmail === comment.member?.email && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          handleEditClick(comment.id, comment.comment)
+                        }
+                        className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        onClick={() => handleDelete(comment.id)}
+                        className="w-10 h-10 bg-gray-200 text-white rounded-full flex items-center justify-center"
+                      >
+                        🗑
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </React.Fragment>
         ))
       )}
