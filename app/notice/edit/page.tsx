@@ -4,7 +4,6 @@ import CameraIcon from "@/assets/icons/camera.svg";
 import CloseIcon from "@/assets/icons/close.svg";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import ReactQuillEditor from "../ReactQuillEditor";
 import { useApiClient } from "@/context/useApiClient";
 
 const NoticeForm: React.FC = () => {
@@ -182,13 +181,6 @@ const NoticeForm: React.FC = () => {
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
-
-      <ReactQuillEditor
-        value={content}
-        onChange={handleEditorChange}
-        onImageDelete={handleImageDelete} // 이미지 삭제 핸들러 연결
-        style={{ width: "100%", height: "80%" }}
-      />
 
       {/* 버튼들 */}
       <div className="flex justify-end gap-3 items-center px-4 py-3 w-full">
