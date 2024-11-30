@@ -1,11 +1,13 @@
 "use client";
 
 import { useApiClient } from "@/context/useApiClient";
+import { useAuth } from "@/context/AuthProvider";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
 const ProfilePage = () => {
   const { requestWithToken } = useApiClient();
+  const { logout } = useAuth();
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -13,23 +15,19 @@ const ProfilePage = () => {
     setCurrentUserEmail(email);
   }, []);
 
-  const logout = async () => {
+  const handleLogout = async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     try {
       const response = await requestWithToken(`${apiUrl}/members/logout`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
 
       if (!response.ok) {
         throw new Error("로그아웃 요청이 실패했습니다.");
       }
 
-      localStorage.removeItem("accessToken");
+      logout();
       localStorage.removeItem("email");
 
       alert("로그아웃 되었습니다.");
@@ -45,7 +43,7 @@ const ProfilePage = () => {
       <h1 className="tracking-tight leading-tight font-bold text-2xl">
         프로필
       </h1>
-      <div onClick={logout}>로그아웃</div>
+      <div onClick={handleLogout}>로그아웃</div>
       {currentUserEmail === "administrator" && (
         <Link href={"/notice/edit"}>공지사항 등록</Link>
       )}

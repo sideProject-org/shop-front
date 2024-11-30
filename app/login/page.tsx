@@ -7,9 +7,11 @@ import SocialLoginButton from "../component/common/SocialLoginButton";
 import Link from "next/link";
 import Cookie from "js-cookie";
 import { useApiClient } from "@/context/useApiClient";
+import { useAuth } from "@/context/AuthProvider";
 
 const LoginPage = () => {
   const { requestWithToken } = useApiClient();
+  const { setTokens } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
@@ -71,15 +73,8 @@ const LoginPage = () => {
       }
 
       const data = await response.json();
-      console.log("data:", data.data);
 
-      localStorage.setItem("accessToken", data.data.accessToken);
-
-      Cookie.set("refreshToken", data.data.refreshToken, {
-        expires: 7,
-        secure: true,
-        sameSite: "Strict",
-      });
+      setTokens(data.data.accessToken, data.data.refreshToken);
 
       localStorage.setItem("email", email);
 
@@ -90,7 +85,7 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [email, password, router]);
+  }, [email, password, router, setTokens]);
 
   return (
     <main className="flex overflow-hidden flex-col justify-center items-center px-2.5 py-20 w-full leading-snug text-black font-normal text-base max-md:max-w-full">
