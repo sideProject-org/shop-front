@@ -4,11 +4,13 @@ import { useApiClient } from "@/context/useApiClient";
 import { useAuth } from "@/context/AuthProvider";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const ProfilePage = () => {
   const { requestWithToken } = useApiClient();
   const { logout } = useAuth();
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -24,15 +26,22 @@ const ProfilePage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("로그아웃 요청이 실패했습니다.");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "로그아웃 요청이 실패했습니다.");
       }
 
       logout();
       localStorage.removeItem("email");
-
+      router.push("/login");
       alert("로그아웃 되었습니다.");
-      setCurrentUserEmail(null);
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "인증이 만료되었습니다. 다시 로그인해주세요."
+      ) {
+        router.push("/login");
+        return;
+      }
       console.error("로그아웃 실패:", error);
       alert("로그아웃 중 문제가 발생했습니다. 다시 시도해주세요.");
     }
