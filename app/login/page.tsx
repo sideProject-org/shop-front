@@ -19,14 +19,6 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      alert("이미 로그인된 사용자입니다.");
-      // router.push("/");
-    }
-  }, [router]);
-
   const handleEmailChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setEmail(e.target.value);
@@ -139,6 +131,7 @@ const LoginPage = () => {
           {error && <p className="mt-2 text-red-500 font-normal">{error}</p>}
           <SocialLoginButton provider="google" />
           <SocialLoginButton provider="kakao" />
+          <SocialLoginButton provider="naver" />
         </div>
         <p className="mt-5 max-w-full text-sm w-[400px]">계정이 없으신가요?</p>
         <Link href={"/signup"}>
