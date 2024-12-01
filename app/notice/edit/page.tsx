@@ -1,23 +1,19 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import CameraIcon from "@/assets/icons/camera.svg";
-import CloseIcon from "@/assets/icons/close.svg";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useApiClient } from "@/context/useApiClient";
+import Editor from "./Editor";
 
 const NoticeForm: React.FC = () => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const { requestWithToken } = useApiClient();
-  const [images, setImages] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const searchParams = useSearchParams();
-  const noticeId = searchParams.get("id"); // Get the notice ID from query params
+  const noticeId = searchParams.get("id");
 
   useEffect(() => {
     if (noticeId) {
-      // If we're editing an existing notice, fetch its details
       const fetchNoticeDetail = async () => {
         try {
           const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -34,10 +30,9 @@ const NoticeForm: React.FC = () => {
           }
 
           const responseData = await response.json();
-          const { title, content, images } = responseData.data;
+          const { title, content } = responseData.data;
           setTitle(title);
           setContent(content);
-          setImages(images || []); // Set images if any exist
         } catch (error) {
           console.error("공지사항 불러오기 실패:", error);
         }
@@ -47,87 +42,36 @@ const NoticeForm: React.FC = () => {
     }
   }, [noticeId]);
 
-  const handleEditorChange = (value: string) => {
-    setContent(value); // 상태 업데이트
-  };
-
-  // 이미지 업로드 처리
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    const file = files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/admin/notices/images/tmp`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("이미지 업로드 실패");
-      }
-
-      const responseData = await response.json();
-      const imageUrl = `${responseData.data.savedPath}`;
-      setImages((prev) => [...prev, imageUrl]);
-    } catch (err) {
-      console.error("이미지 업로드 중 오류 발생:", err);
-      alert("이미지 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
-    }
-  };
-
-  const handleImageDelete = async (imagePath: string) => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/admin/notices/images`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({ imagePath }),
-      });
-
-      if (!response.ok) {
-        throw new Error("이미지 삭제 실패");
-      }
-
-      // 삭제된 이미지를 배열에서 제거
-      setImages((prev) => prev.filter((img) => img !== imagePath));
-    } catch (err) {
-      console.error("이미지 삭제 중 오류 발생:", err);
-      alert("이미지 삭제 중 오류가 발생했습니다. 다시 시도해 주세요.");
-    }
-  };
-
   // 공지사항 제출 처리
   const handleSubmitNotice = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      alert("로그인이 필요합니다. 다시 로그인해 주세요.");
-      return;
-    }
+    // content에서 임시 이미지 URL 추출
+    const tempImageUrls: string[] = [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, "text/html");
+    const images = doc.getElementsByTagName("img");
+
+    Array.from(images).forEach((img) => {
+      const src = img.getAttribute("src");
+      if (src && src.includes("/tmp/")) {
+        // NEXT_PUBLIC_API_BASE_URL을 제거하고 상대 경로만 추출
+        const relativeUrl = src.replace(
+          process.env.NEXT_PUBLIC_API_BASE_URL || "",
+          ""
+        );
+        tempImageUrls.push(relativeUrl);
+      }
+    });
 
     const noticeData = {
       title,
       content,
-      tempImageUrls: images,
+      tempImageUrls,
     };
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
       const response = await fetch(
         noticeId
           ? `${apiUrl}/admin/notices/${noticeId}`
@@ -136,28 +80,24 @@ const NoticeForm: React.FC = () => {
           method: noticeId ? "PUT" : "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           body: JSON.stringify(noticeData),
         }
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response:", errorText);
         throw new Error(noticeId ? "공지사항 수정 실패" : "공지사항 등록 실패");
       }
 
-      const responseData = await response.json();
-      console.log(responseData);
       alert(
         noticeId
           ? "공지사항이 성공적으로 수정되었습니다."
           : "공지사항이 성공적으로 등록되었습니다."
       );
     } catch (err) {
-      console.error("공지사항 등록 중 오류 발생:", err);
-      alert("공지사항 등록 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      // console.error("공지사항 등록 중 오류 발생:", err);
+      // alert("공지사항 등록 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   };
 
@@ -179,6 +119,14 @@ const NoticeForm: React.FC = () => {
           placeholder="제목"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
+
+      {/* CKEditor */}
+      <div className="px-4 py-3">
+        <Editor
+          value={content}
+          onChange={(data: React.SetStateAction<string>) => setContent(data)}
         />
       </div>
 
