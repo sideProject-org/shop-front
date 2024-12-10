@@ -50,6 +50,7 @@ export default function Home() {
       id: 1,
       name: "베스트 상품 1",
       price: 29000,
+      originalPrice: 42000,
       imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
     },
     {
@@ -62,7 +63,14 @@ export default function Home() {
       id: 3,
       name: "베스트 상품 3",
       price: 42000,
+      originalPrice: 60000,
       imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+    },
+    {
+      id: 4,
+      name: "베스트 상품 4",
+      price: 42000,
+      imageUrl: "https://images.unsplash.com/photo-1563045848-6fc8a43f32d1",
     },
   ];
 
@@ -78,6 +86,13 @@ export default function Home() {
       name: "신상품 2",
       price: 45000,
       imageUrl: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
+    },
+    {
+      id: 6,
+      name: "신상품 3",
+      price: 29000,
+      originalPrice: 48000,
+      imageUrl: "https://images.unsplash.com/photo-1507764923504-cd90bf7da772",
     },
   ];
 
