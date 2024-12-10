@@ -20,7 +20,7 @@ const Button: React.FC<ButtonProps> = ({
   loading = false,
 }) => {
   const baseClasses =
-    "overflow-hidden gap-2.5 self-stretch py-4 whitespace-nowrap flex justify-center items-center";
+    "overflow-hidden gap-2.5 self-stretch py-4 whitespace-nowrap flex justify-center items-center px-4";
   const variantClasses = {
     primary: "bg-slate-950 text-slate-50",
     secondary: "border border-solid border-zinc-400 text-slate-950",
