@@ -4,6 +4,9 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthProvider";
 import Link from "next/link";
 import Cookie from "js-cookie";
+import BannerSlider from "./components/home/BannerSlider";
+import BestSection from "./components/home/BestSection";
+import NewProductSection from "./components/home/NewProductSection";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -36,11 +39,53 @@ export default function Home() {
     }
   }, [searchParams, setTokens]);
 
+  const bannerImages = [
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8",
+    "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04",
+    "https://images.unsplash.com/photo-1610904058046-8009154a3848",
+  ];
+
+  const bestProducts = [
+    {
+      id: 1,
+      name: "베스트 상품 1",
+      price: 29000,
+      imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+    },
+    {
+      id: 2,
+      name: "베스트 상품 2",
+      price: 35000,
+      imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
+    },
+    {
+      id: 3,
+      name: "베스트 상품 3",
+      price: 42000,
+      imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+    },
+  ];
+
+  const newProducts = [
+    {
+      id: 4,
+      name: "신상품 1",
+      price: 39000,
+      imageUrl: "https://images.unsplash.com/photo-1572635196237-14b3f281503f",
+    },
+    {
+      id: 5,
+      name: "신상품 2",
+      price: 45000,
+      imageUrl: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
+    },
+  ];
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen py-20 px-4">
-      쇼핑몰 홈
-      <br />
-      <Link href={"/login"}>로그인으로 이동</Link>
+    <main>
+      <BannerSlider images={bannerImages} />
+      <BestSection products={bestProducts} />
+      <NewProductSection products={newProducts} />
     </main>
   );
 }
