@@ -29,9 +29,6 @@ const BestSection: React.FC<{ products: Product[] }> = ({ products }) => {
           {products.map((product, index) => (
             <SwiperSlide key={product.id}>
               <div className="relative">
-                <div className="absolute top-4 left-4 z-10 w-8 h-8 bg-white rounded-lg flex items-center justify-center font-bold">
-                  {index + 1}
-                </div>
                 <ProductCard {...product} />
               </div>
             </SwiperSlide>

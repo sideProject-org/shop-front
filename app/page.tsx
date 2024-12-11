@@ -94,6 +94,20 @@ export default function Home() {
       originalPrice: 48000,
       imageUrl: "https://images.unsplash.com/photo-1507764923504-cd90bf7da772",
     },
+    {
+      id: 7,
+      name: "신상품 4",
+      price: 29000,
+      originalPrice: 48000,
+      imageUrl: "https://images.unsplash.com/photo-1507764923504-cd90bf7da772",
+    },
+    {
+      id: 8,
+      name: "신상품 5",
+      price: 29000,
+      originalPrice: 48000,
+      imageUrl: "https://images.unsplash.com/photo-1507764923504-cd90bf7da772",
+    },
   ];
 
   return (
