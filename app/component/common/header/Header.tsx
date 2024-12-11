@@ -4,7 +4,7 @@ import IconButton from "./IconButton";
 import NavItem from "./NavItem";
 import NotificationBar from "./NotificationBar";
 import CartIcon from "@/assets/icons/cart.svg";
-import HeartIcon from "@/assets/icons/heart.svg";
+import HeartIcon from "@/assets/icons/wishlist.svg";
 import ProfileIcon from "@/assets/icons/profile.svg";
 
 interface HeaderProps {
